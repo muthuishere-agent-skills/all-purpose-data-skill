@@ -1,4 +1,4 @@
-<!-- Generated from docs/specs/spec-recipes.md @ 11d9246 -->
+<!-- Generated from docs/specs/spec-recipes.md @ e09fbfb -->
 
 # GitHub — recipes
 
