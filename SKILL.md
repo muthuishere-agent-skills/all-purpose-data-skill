@@ -41,30 +41,59 @@ skill carries the routing and recipe knowledge.
 - **Never print the access token.** Any `apl login` output is piped into the
   consuming command, never echoed back to the user. Never show it in a code
   fence.
-- **Ask for a handle once per session.** On the first productivity intent,
-  run `apl accounts --json`, present the options grouped by provider, and
-  cache the choice in conversation context. No re-prompting unless the user
-  asks to switch.
-- **Silent auto-switch for single compatible handle.** If the intent is
-  Microsoft-only (Teams, online meetings) and the active handle is `ms:*`,
-  proceed. If there is exactly one compatible handle that differs from the
-  active one, auto-switch for this request and tell the user briefly.
-  Ask when zero or two+ compatible handles exist.
+- **Fan out across all compatible handles by default.** On any intent
+  that can be served by multiple handles (mail / calendar / contacts /
+  drive — anything provider-agnostic), run `apl accounts --json`, and
+  issue the corresponding `apl call` to every compatible handle **in
+  parallel**. Aggregate results before presenting. Do not prompt the user
+  to pick — the whole point of "all-purpose-data" is the cross-provider
+  view in one shot.
+- **Label aggregated items by source.** When merging results from
+  multiple handles (e.g. 10 unread mails across Gmail + Outlook), prefix
+  or tag each with its handle so the user can trace provenance.
+- **Provider-specific intents still route.** Microsoft-only (Teams,
+  online meetings) — use the ms handle. Google-only (Google Docs export,
+  Meet recordings via Drive) — use the google handle. With exactly one
+  compatible handle, proceed silently. With zero, tell the user what's
+  missing and how to set up.
+- **User override takes precedence.** Phrases like "just my work gmail",
+  "only reqsume", "use ms:volentis" narrow the fan-out to that single
+  handle for the remainder of the session (or until switched again).
+- **Cache the set of handles in conversation context** — don't re-run
+  `apl accounts --json` on every recipe. Refresh on `apl login` /
+  `apl logout` / explicit "refresh handles".
 - **Surface walls honestly.** A 403 driven by tenant policy or SharePoint ACL
   (e.g. Teams recording `/content` endpoint, DLP block, admin-consent
   required) is NOT retried. Report the wall, cite the documented workaround
   from the relevant reference, and stop.
+- **Default to signal, not noise.** A generic ask like "what are my emails
+  today" means the user wants the ~10 items they'd actually open, not a
+  dump of every newsletter + transactional + bank alert. Default filters:
+  - **Gmail:** `q=in:inbox category:primary is:unread newer_than:1d` (skips
+    Promotions, Updates, Social, Forums). Cap `maxResults=20`.
+  - **Graph Mail:** `$filter=isRead eq false and parentFolderId ne <Junk
+    Email>`; order by `receivedDateTime desc`, `$top=20`.
+  - Summarize by sender + subject; do NOT categorize the whole inbox.
+  Upgrade to broader queries only when the user explicitly asks:
+  "all mail", "including newsletters", "read + unread", "last 7 days".
+- **Never dump >30 items in a single response.** If a query returns more,
+  summarize a count + top-N actionable, offer to expand categories on
+  request. Agents burn user tokens on bulk list formatting — keep it terse.
 
 ## Session Context
 
-The active selection is held in conversation context only — no file writes.
+Held in conversation memory only — no file writes.
 
 ```
-active_handle: google:work     # or ms:volentis, etc.
-active_provider: google        # google | ms
+all_handles:      [google:muthuishere, ms:reqsume, ...]   # from `apl accounts --json`
+scope_override:   null                                     # or "google:muthuishere" if user narrowed
 ```
 
-If the session ends, the skill re-prompts next time.
+Default behavior: fan out across `all_handles` (filtered by provider
+compatibility for the current intent). `scope_override` narrows the
+set to a single handle when the user says so.
+
+If the session ends, the skill re-lists handles next time.
 
 ## Process
 

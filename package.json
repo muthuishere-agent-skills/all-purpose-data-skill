@@ -1,6 +1,6 @@
 {
   "name": "@muthuishere/all-purpose-data-skill",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Claude Code / Codex agent skill for email / calendar / Teams / meetings / Drive / OneDrive / SharePoint / contacts / GitHub via apl + gh.",
   "license": "MIT",
   "author": "Muthukumaran Navaneethakrishnan",

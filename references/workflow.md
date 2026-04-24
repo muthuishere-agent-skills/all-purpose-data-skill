@@ -62,12 +62,14 @@ Writes happen on natural checkpoints:
 Questions are asked on demand, only when a recipe needs an input that isn't
 resolvable from project / global state.
 
-| First time the user hits... | Ask |
+| First time the user hits... | Ask (only if needed — defaults do a lot) |
 |---|---|
-| mail / calendar / meetings / chat / drive recipe | Pick handle from `apl accounts --json` (see `handle-selection.md`). |
+| mail / calendar / contacts / drive recipe | **Do NOT ask.** List handles via `apl accounts --json`, fan out to ALL compatible handles in parallel, aggregate results. Ask only if the user explicitly requested a specific handle and none matches. |
+| Microsoft-only recipe (Teams, online meetings, SharePoint) | Use the one `ms:*` handle. If multiple, fan out. If zero, route to `setup-microsoft.md`. |
+| Google-only recipe (Google Docs export, Meet recording via Drive) | Use the one `google:*` handle. If multiple, fan out. If zero, route to `setup-google.md`. |
 | GitHub recipe | "Use `$(git remote get-url origin)` as default repo? (Y/switch)". If not in a git repo, prompt for `owner/name`. |
-| Morning Brief | Confirm both providers have active handles; offer to set `since_last_brief` to "24h ago" by default. |
-| Chat brief / delta recipe | Confirm `since_last_brief` (or its per-family equivalent); if missing, offer "24h ago". |
+| Morning Brief | No ask — fan out to every handle on both providers + gh. Offer to set `since_last_brief` to "24h ago" on first run only. |
+| Chat brief / delta recipe | Confirm `since_last_brief` (or its per-family equivalent) on first run; if missing, offer "24h ago". |
 
 Every answer is cached at the project layer. The same question is never asked
 twice in the same repo unless the user says "switch" / "change".
