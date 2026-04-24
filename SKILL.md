@@ -2,15 +2,20 @@
 name: all-purpose-data-skill
 description: >
   Email, calendar, Teams chat, online meetings (recordings + transcripts),
-  Drive / OneDrive / SharePoint files, and contacts across Google Workspace
-  and Microsoft 365. Uses `apl` (`npm install -g @muthuishere/apl`) as the
-  OAuth token broker. Trigger on: send/read/reply/forward/search email,
-  unread mail, today's / this week's / next meeting, create / decline /
-  RSVP event, free-busy, meeting recording + transcript, search teams
-  chat, dm on teams, post in channel, react, search drive / onedrive /
-  sharepoint, download or export file, share file, look up contact,
-  find person in directory, sync since last check, batch calls. Works
-  across google:<label> and ms:<label> handles from `apl accounts`.
+  Drive / OneDrive / SharePoint files, contacts, and GitHub (PRs, issues,
+  reviews, Actions, releases) across Google Workspace, Microsoft 365, and
+  GitHub. Headline flow: Morning Brief — aggregates meetings + mail + chat
+  + PRs/issues in one turn. Uses `apl`
+  (`npm install -g @muthuishere/apl`) as the OAuth token broker and `gh`
+  for GitHub. Trigger on: morning brief, catch me up, what's on today,
+  start my day, my prs, review queue, my issues, pr status, new messages,
+  what's new, anything new, send/read/reply/forward/search email, unread
+  mail, today's / this week's / next meeting, create / decline / RSVP
+  event, free-busy, meeting recording + transcript, search teams chat,
+  dm on teams, post in channel, react, search drive / onedrive /
+  sharepoint, download or export file, share file, look up contact, find
+  person in directory, sync since last check, batch calls. Works across
+  google:<label> and ms:<label> handles from `apl accounts`.
 ---
 
 <!-- version: 0.1.0 -->
@@ -77,6 +82,8 @@ If the session ends, the skill re-prompts next time.
    - Drive / OneDrive / SharePoint / Google Docs export → `references/drive.md`
    - Contacts / People / directory → `references/contacts.md`
    - Delta syncs + Graph $batch + Gmail history → `references/delta-and-batch.md`
+   - GitHub (PRs, issues, reviews, Actions, releases) → `references/github.md`
+   - Morning Brief (headline flow — aggregates across families) → `references/morning-brief.md`
 
 ## Families at a glance
 
@@ -89,3 +96,5 @@ If the session ends, the skill re-prompts next time.
 | Drive / OneDrive / SharePoint | both (per provider) | `references/drive.md` |
 | Contacts / People / directory | both (per provider) | `references/contacts.md` |
 | Delta + batch | both | `references/delta-and-batch.md` |
+| GitHub (PRs, issues, Actions, releases) | GitHub via `gh` | `references/github.md` |
+| Morning Brief (headline, aggregates) | all families | `references/morning-brief.md` |

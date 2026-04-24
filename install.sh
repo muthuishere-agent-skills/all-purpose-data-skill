@@ -44,6 +44,15 @@ if ! command -v apl >/dev/null 2>&1; then
   echo ""
 fi
 
+# Assert gh is on PATH (warn, don't fail) — GitHub recipes need it
+if ! command -v gh >/dev/null 2>&1; then
+  echo "  WARNING: 'gh' (GitHub CLI) not found on PATH."
+  echo "           GitHub recipes won't work until you install + auth:"
+  echo "             brew install gh"
+  echo "             gh auth login"
+  echo ""
+fi
+
 fail=0
 
 install_to "$CLAUDE_SKILLS_DIR" "Claude Code" || fail=1

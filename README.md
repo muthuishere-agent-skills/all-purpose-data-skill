@@ -1,6 +1,6 @@
 # all-purpose-data-skill
 
-A Claude Code / Codex agent skill that turns natural-language productivity requests — *"send an email to X"*, *"what's on my calendar"*, *"find last week's Teams recording"*, *"export this Google Doc as PDF"* — into authenticated HTTP calls against **Google Workspace** and **Microsoft 365**.
+A Claude Code / Codex agent skill that turns natural-language productivity requests — *"send an email to X"*, *"what's on my calendar"*, *"find last week's Teams recording"*, *"export this Google Doc as PDF"*, *"my PRs"*, *"morning brief"* — into authenticated HTTP calls across **Google Workspace**, **Microsoft 365**, and **GitHub**. The headline flow is **Morning Brief**: one turn aggregates today's meetings, unread mail, new Teams messages, and your GitHub PR / issue queue.
 
 The skill is the *routing + recipe layer*. It knows which family an intent belongs to (mail, calendar, Teams, meetings, files, contacts), which provider can serve it, which handle to use, and the exact HTTP shape. It does **not** handle OAuth — that job belongs to [`apl`](https://github.com/muthuishere/all-purpose-login).
 
@@ -33,6 +33,14 @@ Then `az login` once. See [`references/setup-microsoft.md`](./references/setup-m
 | **`gcloud`** CLI | `apl setup google` — picks/creates GCP project, enables APIs | `brew install --cask google-cloud-sdk` |
 
 Then `gcloud auth login` once. The OAuth Client ID creation has one unavoidable manual step in the GCP console (Google blocks `gcloud` from doing it). See [`references/setup-google.md`](./references/setup-google.md).
+
+### Only if you want GitHub features (PRs / issues / reviews / Actions / releases / Morning Brief's GitHub section)
+
+| Tool | For | Install |
+|---|---|---|
+| **`gh`** (GitHub CLI) | Auth + every GitHub recipe in `references/github.md` | `brew install gh` |
+
+Then `gh auth login` once. Without `gh`, the rest of the skill still works — only the GitHub recipes and Morning Brief's GitHub sections are disabled.
 
 ### Never required
 
@@ -132,6 +140,8 @@ Switch accounts mid-session: *"use my personal gmail instead"* → picker re-pro
 - [`references/drive.md`](./references/drive.md) — OneDrive / SharePoint + Google Drive (search/download/upload/export/share/perms)
 - [`references/contacts.md`](./references/contacts.md) — Microsoft Contacts / directory + Google People
 - [`references/delta-and-batch.md`](./references/delta-and-batch.md) — Gmail history, Calendar syncToken, Mail/Events delta, Drive changes, `$batch`, Gmail multipart batch, webhook subscriptions
+- [`references/github.md`](./references/github.md) — repos, PRs, issues, reviews, Actions, releases, code/issue/PR search (via `gh` CLI)
+- [`references/morning-brief.md`](./references/morning-brief.md) — headline flow; aggregates across mail + calendar + Teams + GitHub in one turn
 
 Each reference file declares the apl spec commit it was generated from at the top.
 

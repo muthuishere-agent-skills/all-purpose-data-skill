@@ -13,6 +13,65 @@ This is the decision graph the agent follows on every productivity intent.
   conversation context only; never written to disk.
 - `{active_provider}` — `google` | `ms`, derived from the handle prefix.
 
+## State model
+
+Three layers, resolved in order **session > project > global > ask**:
+
+```
+  session    conversation memory only               ephemeral override
+                                                    ("use my personal gmail
+                                                    for this task")
+
+  project    ~/config/muthuishere-agent-skills/     per-repo defaults
+             <reponame>/state.yaml                  (active handles,
+                                                    default GitHub repo,
+                                                    since_last_brief, etc.)
+
+  global     ~/.claude/skills/all-purpose-data-     user-global defaults
+             skill/state.yaml                       (rare; fallback only)
+```
+
+**Reponame** is derived from `basename $(git rev-parse --show-toplevel)` when
+the cwd is inside a git repo; else from the project's directory name; else
+`default`. Sanitize `/` to `-`.
+
+**`state.yaml` schema** (all fields optional; the agent reads what's there and
+asks only when a recipe needs something missing):
+
+```yaml
+active_handle_google: google:work
+active_handle_ms:     ms:volentis
+gh_default_repo:      muthuishere/all-purpose-login
+since_last_brief:     2026-04-24T09:00:00Z
+preferred_brief_sections: [meetings, mail, github]
+```
+
+Precedence: a session-level override (e.g. user says "use my personal gmail
+for this one") wins for that turn only and is NOT persisted. Project-level
+values persist across sessions. Global is the last-resort fallback for
+unscoped usage.
+
+Writes happen on natural checkpoints:
+- Handle picker confirms a handle → write `active_handle_<provider>`.
+- Morning Brief completes → write `since_last_brief`.
+- GitHub repo picker confirms → write `gh_default_repo`.
+
+## Lazy first-touch interview
+
+**Never upfront.** The skill does not interrogate the user on session start.
+Questions are asked on demand, only when a recipe needs an input that isn't
+resolvable from project / global state.
+
+| First time the user hits... | Ask |
+|---|---|
+| mail / calendar / meetings / chat / drive recipe | Pick handle from `apl accounts --json` (see `handle-selection.md`). |
+| GitHub recipe | "Use `$(git remote get-url origin)` as default repo? (Y/switch)". If not in a git repo, prompt for `owner/name`. |
+| Morning Brief | Confirm both providers have active handles; offer to set `since_last_brief` to "24h ago" by default. |
+| Chat brief / delta recipe | Confirm `since_last_brief` (or its per-family equivalent); if missing, offer "24h ago". |
+
+Every answer is cached at the project layer. The same question is never asked
+twice in the same repo unless the user says "switch" / "change".
+
 ## Preflight (run once per session, before any other call)
 
 1. `command -v apl` — is apl on PATH?

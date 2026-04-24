@@ -104,6 +104,52 @@ unless:
 - A compatibility mismatch forces a temporary switch (announced).
 - The session ends (new Claude Code session = fresh state).
 
+## GitHub repo selection
+
+GitHub recipes (see `github.md`) operate on a `<repo>` = `owner/name`. The
+skill resolves `gh_default_repo` by the same layered lookup as a handle:
+session > project > global > ask.
+
+**Resolution order on first GitHub intent of a session:**
+
+1. Session override? (user said "for muthuishere/foo…") → use it, do not persist.
+2. `project.state.yaml` → `gh_default_repo`? → use it.
+3. Cwd is a git repo with a GitHub remote?
+   ```bash
+   gh repo view --json nameWithOwner -q .nameWithOwner
+   ```
+   If this exits 0, offer: *"Use `<nameWithOwner>` as the default repo for this project? (Y/switch)"*. On confirm, write to project state.
+4. Else prompt: *"Which repo? (owner/name)"*. Validate via `gh repo view <x> --json nameWithOwner` before caching.
+5. Write to `project.state.yaml` → `gh_default_repo` on confirm.
+
+**Switch triggers:** user says "switch repo", "use X repo instead", "for
+`<other-repo>`" → re-run the picker, overwrite state.
+
+**Multi-repo intents** (e.g. "my PRs across all repos" — GH-5 without
+`--repo`) do NOT need `gh_default_repo` — `gh` already scopes by `@me`. Only
+ask when a recipe needs a concrete `<repo>`.
+
+**Pseudocode:**
+
+```
+def resolve_repo(intent):
+    if session.repo_override:
+        return session.repo_override
+    if project_state.gh_default_repo:
+        return project_state.gh_default_repo
+    try:
+        r = run("gh repo view --json nameWithOwner -q .nameWithOwner")
+        if confirm_with_user(f"Use {r} as default?"):
+            project_state.gh_default_repo = r
+            return r
+    except NotAGitRepo, NoGhRemote:
+        pass
+    r = ask_user("Which repo? (owner/name)")
+    validate(r)
+    project_state.gh_default_repo = r
+    return r
+```
+
 ## Missing-scope handling
 
 `apl accounts --json` returns the scopes granted per handle. If a recipe's
