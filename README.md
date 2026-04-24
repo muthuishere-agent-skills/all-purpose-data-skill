@@ -52,14 +52,17 @@ Then `gh auth login` once. Without `gh`, the rest of the skill still works — o
 
 ## Install
 
+Both apl and the skill ship as npm packages — no `git clone` needed.
+
 ```bash
 # 1. Install the OAuth broker
 npm install -g @muthuishere/apl
 
-# 2. Install this skill (symlinks into ~/.claude/skills/; also ~/.agents/skills/ if codex is on PATH)
-git clone https://github.com/muthuishere-agent-skills/all-purpose-data-skill
-cd all-purpose-data-skill
-sh install.sh
+# 2. Install this skill (symlinks into ~/.claude/skills/ and, if codex is on PATH, ~/.agents/skills/)
+npx @muthuishere/all-purpose-data-skill install
+#   ...or install once and use the short command:
+#   npm install -g @muthuishere/all-purpose-data-skill
+#   all-purpose-data-skill install
 
 # 3. Configure whichever providers you want (both optional; pick what you need)
 apl setup ms           # needs az
@@ -75,7 +78,17 @@ apl login google:personal
 Override the Claude skills dir:
 
 ```bash
-CLAUDE_SKILLS_DIR=/some/other/path sh install.sh
+CLAUDE_SKILLS_DIR=/some/other/path npx @muthuishere/all-purpose-data-skill install
+```
+
+### Legacy: install from a clone
+
+If you're hacking on the skill locally, the shell installer still works:
+
+```bash
+git clone https://github.com/muthuishere-agent-skills/all-purpose-data-skill
+cd all-purpose-data-skill
+sh install.sh
 ```
 
 ---
@@ -83,8 +96,14 @@ CLAUDE_SKILLS_DIR=/some/other/path sh install.sh
 ## Uninstall
 
 ```bash
-sh uninstall.sh                       # removes skill symlinks
-npm uninstall -g @muthuishere/apl     # removes apl itself
+# Skill (either path works)
+all-purpose-data-skill uninstall             # if globally installed
+# or
+npx @muthuishere/all-purpose-data-skill uninstall
+
+# Then remove the npm packages
+npm uninstall -g @muthuishere/all-purpose-data-skill
+npm uninstall -g @muthuishere/apl
 ```
 
 `apl`'s tokens live in your OS keychain; removing the binary doesn't delete them. To wipe tokens: `apl logout <handle>` per account, or clear the `all-purpose-login` service from your OS keychain directly.
