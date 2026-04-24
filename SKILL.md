@@ -85,6 +85,19 @@ If the session ends, the skill re-prompts next time.
    - GitHub (PRs, issues, reviews, Actions, releases) → `references/github.md`
    - Morning Brief (headline flow — aggregates across families) → `references/morning-brief.md`
 
+## Self-check
+
+Before trusting the skill's routing, validate its format integrity:
+
+    sh tests/all.sh
+
+Runs:
+  - tests/validate-recipes.sh     recipe format + cross-references
+  - tests/install-test.sh          install/uninstall idempotency
+  - tests/sha-banner-check.sh      sync banners point at real apl commits
+
+Zero-exit means the catalogue is internally consistent and installable.
+
 ## Families at a glance
 
 | Family | Providers | Reference |

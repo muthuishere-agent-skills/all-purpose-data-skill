@@ -91,6 +91,16 @@ npm uninstall -g @muthuishere/apl     # removes apl itself
 
 ---
 
+## Testing
+
+```bash
+sh tests/all.sh
+```
+
+Validates recipe format + install idempotency + sync-banner integrity. Useful before committing changes to recipe files.
+
+---
+
 ## Relationship to `apl`
 
 | | `apl` | this skill |
